@@ -6,7 +6,7 @@ setwd("~/IDP")
 ####
 ## iterative training
 ####
-res_file <- grep("result",list.files("output/iterative_1_20_test2/",full.names = T),value = T)
+res_file <- grep("result",list.files("output/",full.names = T),value = T)
 log_file <- grep("log",list.files("output/",full.names = T),value=T)
 
 for(i in seq_along(res_file)){
@@ -76,11 +76,13 @@ pf <- lapply(types,function(type){
     pf <- fg[grep(type, profile)]
     tt <- pf[,(sum=sum(accu)),by=profile]
     nn <- tt[which.max(tt$V1),(profile)]
-    print(paste0(type," max ",round(max(tt$V1))/19))
+    print(paste0(type," average ",round(max(tt$V1))/19))
     print(paste0(type," improved ",round((max(tt$V1)-tt[grep("\\(original",profile)]$V1)/19,3),"%"))
     return(fg[profile==nn])
 })
 pf <- do.call("rbind",pf)
+# add original
+pf <- rbind(pf,fg[grep("ori",profile)])
 
 ggplot(pf,aes(x=IDP,y=accu,colour=profile))+
     scale_y_continuous(breaks = seq(0,100,by=5))+
@@ -96,7 +98,7 @@ ggplot(pf,aes(x=IDP,y=accu,colour=profile))+
 ggsave(paste0("output/result_idp_all_best.png"))
 
 
-r2_file <- grep("r2",list.files("output/iterative_1_20_test2/",full.names = T),value = T)
+r2_file <- grep("r2",list.files("output/",full.names = T),value = T)
 r2_file <- grep("\\.csv",r2_file,value=T)
 #### plot r2 according to original order ####
 for(type in types){
@@ -107,20 +109,20 @@ for(type in types){
         pf <- melt(f,id.vars = "order")
     }
     
-    for(lvl in levels(pf$variable)){
-        tf <- pf[variable==lvl]
-        ggplot(tf,aes(x=order,y=value))+
-            geom_line()+
-            ggtitle(paste0("Trainable Channel Coefficients, ", lvl))+
-            xlab("Channel Coefficient Index")+
-            ylab("Channel Coefficient (gamma)")+
-            theme_bw()+
-            theme(plot.title = element_text(hjust=0.5),
-                  legend.text=element_text(size=12),
-                  legend.title = element_text(size=12))+
-            coord_cartesian(ylim=c(min(pf$value),max(pf$value)))
-        ggsave(paste0("output/",type,"_r2_",lvl,".png"))
-    }
+    # for(lvl in levels(pf$variable)){
+    #     tf <- pf[variable==lvl]
+    #     ggplot(tf,aes(x=order,y=value))+
+    #         geom_line()+
+    #         ggtitle(paste0("Trainable Channel Coefficients, ", lvl))+
+    #         xlab("Channel Coefficient Index")+
+    #         ylab("Channel Coefficient (gamma)")+
+    #         theme_bw()+
+    #         theme(plot.title = element_text(hjust=0.5),
+    #               legend.text=element_text(size=12),
+    #               legend.title = element_text(size=12))+
+    #         coord_cartesian(ylim=c(min(pf$value),max(pf$value)))
+    #     ggsave(paste0("output/",type,"_r2_",lvl,".png"))
+    # }
     
     ggplot(pf,aes(x=order,y=value,colour=as.factor(variable)))+
         geom_line()+
@@ -135,3 +137,4 @@ for(type in types){
 
     ggsave(paste0("output/result_r2_",type,".png"))
 }
+
