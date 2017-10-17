@@ -54,7 +54,7 @@ with tf.Session() as sess:
         tidp = 0
         var_reuse = False
         go_on = True
-        current_best_loss = 100
+        current_best_loss = 0
         current_best_counter = 0
 
         """ result containers """
