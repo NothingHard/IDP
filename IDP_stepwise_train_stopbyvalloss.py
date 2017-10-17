@@ -137,7 +137,7 @@ with tf.Session() as sess:
 
             var_reuse = True # temporary
             
-            if this_loss < current_best_loss:
+            if this_loss > current_best_loss:
                 current_best_loss = this_loss
                 current_best_counter = 0
             else:

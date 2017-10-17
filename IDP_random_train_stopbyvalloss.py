@@ -159,7 +159,7 @@ with tf.Session() as sess:
             this_accu = np.array(this_accu)
             this_accu = this_accu*this_weight/np.sum(this_weight)
 
-            if this_loss < current_best_loss:
+            if this_loss > current_best_loss:
                 current_best_loss = this_loss
                 current_best_counter = 0
             else:
