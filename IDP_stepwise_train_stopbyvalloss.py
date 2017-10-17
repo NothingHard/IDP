@@ -20,6 +20,8 @@ alpha     = float(sys.argv[2])
 alternate = int(sys.argv[3])
 act_type  = sys.argv[4]
 
+early_stop = "val_accu"
+
 ''' MAIN PROGRAM '''
 
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
@@ -89,12 +91,12 @@ with tf.Session() as sess:
                 model_test.loss_counter = tidp
                 print("=====< Start to optimize IDP = %d >=====" % (trained_idp[tidp]*100))
                 log1 = model_test.train(sess=sess,config=config,gamma_trainable=False,reuse=var_reuse,verbose=True)
-                this_loss = log1['val_loss'][0]
+                this_loss = log1[early_stop][0]
                 log = pd.DataFrame.from_dict(log1)
                 r2_dict['initial'] = sess.run(model_test.r2)
             else:
                 log1 = model_test.train(sess=sess,config=config,gamma_trainable=False,reuse=var_reuse,verbose=True)
-                this_loss = log1['val_loss'][0]
+                this_loss = log1[early_stop][0]
                 log1 = pd.DataFrame.from_dict(log1)
                 log = pd.concat([log,log1])
             
@@ -115,7 +117,7 @@ with tf.Session() as sess:
             #scope.reuse_variables()
             if alternate:
                 log1 = model_test.train(sess=sess,config=config,gamma_trainable=True,reuse=var_reuse,verbose=True)
-                this_loss = log1['val_loss'][0]
+                this_loss = log1[early_stop][0]
                 log1 = pd.DataFrame.from_dict(log1)
                 log = pd.concat([log,log1])
                 r2_dict['after_'+str(intv)] = sess.run(model_test.r2)
