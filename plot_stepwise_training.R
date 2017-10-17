@@ -44,8 +44,8 @@ if(byATP){
     f[idx]$profile <- paste0("TESLA+ATP, ",f[idx]$profile)
     f[!idx]$profile <- paste0("TESLA, ",f[!idx]$profile)
 }else{
-    f[idx]$profile <- paste0(f[idx]$profile,", TESLA+ATP")
-    f[!idx]$profile <- paste0(f[!idx]$profile,", TESLA")
+    f[idx]$profile <- paste0("TESLA+ATP, ",f[idx]$profile)
+    f[!idx]$profile <- paste0("TESLA, ",f[!idx]$profile)
 }
 
 
@@ -80,9 +80,9 @@ for(prof in profile_type){
             pf$profile <- gsub(", TESLA","",pf$profile)
             pf$profile <- as.factor(pf$profile)
             if(b==0){
-                mytitle <- paste0("MLP (MNIST),  alpha = ",type/100, ", TESLA")
+                mytitle <- paste0("MLP (MNIST), TESLA,  alpha = ",type/100)
             }else{
-                mytitle <- paste0("MLP (MNIST),  alpha = ",type/100, ", TESLA+ATP")
+                mytitle <- paste0("MLP (MNIST), TESLA+ATP, alpha = ",type/100)
             }
             ggplot(pf,aes(x=IDP,y=accu,colour=profile))+
                 scale_y_continuous(breaks = seq(0,100,by=5))+
@@ -171,7 +171,7 @@ ggplot(pf,aes(x=IDP,y=accu,colour=profile))+
     theme_bw()+
     coord_cartesian(ylim = c(50, 100)) +
     theme(plot.title = element_text(hjust=0.5),
-          legend.position = c(0.5,0.6),
+          legend.position = c(0.5,0.5),
           legend.text=element_text(size=10),
           legend.title = element_text(size=15))
 ggsave(paste0(this.dir,"idp_all_best.png"),width = 10,height = 8,units="in")
@@ -181,8 +181,7 @@ r2_file <- grep("\\.csv",r2_file,value=T)
 #### plot r2 according to original order ####
 for(prof in profile_type){
     for(type in types){
-        for(b in c(0,1)){
-            if
+        for(b in c(1)){
             tmp_r2_file <- r2_file[grep(paste0(prof,"_",type,"_",b),r2_file)]
             for(i in seq_along(tmp_r2_file)){
                 f <- fread(tmp_r2_file[i])

@@ -131,7 +131,7 @@ with tf.Session() as sess:
             #scope.reuse_variables()
             if alternate:
                 intv += 1
-                log1 = model_test.train(sess=sess,config=config,gamma_trainable=True,reuse=var_reuse,verbose=False)
+                log1 = model_test.train(sess=sess,config=config,gamma_trainable=True,reuse=var_reuse,verbose=True)
                 this_loss = log1['val_loss'][0]
                 log1 = pd.DataFrame.from_dict(log1)
                 log = pd.concat([log,log1])
