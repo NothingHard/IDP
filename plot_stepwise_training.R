@@ -10,10 +10,10 @@ setwd("~/IDP")
 ####
 ## iterative training
 ####
-this.dir <- "output/0921_ALL/"
+this.dir <- "output/"
 res_file <- grep("result",list.files(this.dir,full.names = T),value = T)
 log_file <- grep("log",list.files(this.dir,full.names = T),value=T)
-byATP=TRUE
+byATP=FALSE
 for(i in seq_along(res_file)){
     if(i==1){
         f <- fread(res_file[i])
@@ -62,12 +62,12 @@ fg$profile <- gsub("at","at optimizing",fg$profile)
 fw$profile <- gsub("at","at optimizing",fw$profile)
 fg$profile <- gsub("\\(1 rounds","\\(1 round",fg$profile)
 fw$profile <- gsub("\\(1 rounds","\\(1 round",fw$profile)
-
+# fg = fw
 types <- unique(do.call(what="rbind",strsplit(basename(res_file),split = "_"))[,2])
 types <- as.numeric(types)
 fg <- fg[order(alpha)]
 types <- unique(fg$alpha)
-profile_type <- c("harmonic","all-one")
+profile_type <- c("all-one")
 
 for(prof in profile_type){
     for(type in types){
@@ -98,7 +98,7 @@ for(prof in profile_type){
                       legend.position = c(0.5,0.3),
                       legend.text=element_text(size=10),
                       legend.title = element_text(size=15))
-            ggsave(paste0(this.dir,"result_idp_",prof,"_alpha",type,"_b",b,".png"),width = 10,height = 8,units="in")
+            ggsave(paste0(this.dir,"idp_",prof,"_alpha",type,"_b",b,".png"),width = 10,height = 8,units="in")
         }
     }
 }
@@ -171,10 +171,10 @@ ggplot(pf,aes(x=IDP,y=accu,colour=profile))+
     theme_bw()+
     coord_cartesian(ylim = c(50, 100)) +
     theme(plot.title = element_text(hjust=0.5),
-          legend.position = c(0.5,0.3),
+          legend.position = c(0.5,0.6),
           legend.text=element_text(size=10),
           legend.title = element_text(size=15))
-ggsave(paste0(this.dir,"result_idp_all_best.png"),width = 10,height = 8,units="in")
+ggsave(paste0(this.dir,"idp_all_best.png"),width = 10,height = 8,units="in")
 
 r2_file <- grep("r2",list.files("output/",full.names = T),value = T)
 r2_file <- grep("\\.csv",r2_file,value=T)
@@ -182,6 +182,7 @@ r2_file <- grep("\\.csv",r2_file,value=T)
 for(prof in profile_type){
     for(type in types){
         for(b in c(0,1)){
+            if
             tmp_r2_file <- r2_file[grep(paste0(prof,"_",type,"_",b),r2_file)]
             for(i in seq_along(tmp_r2_file)){
                 f <- fread(tmp_r2_file[i])
