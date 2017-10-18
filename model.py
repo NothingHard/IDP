@@ -102,7 +102,7 @@ class model():
             cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits,labels=self.y)
             this_loss = tf.reduce_mean(cross_entropy)
             this_op = tf.train.AdamOptimizer(self.learning_rate).minimize(this_loss,var_list=self.tvars_trainable)
-            this_op_gamma = tf.train.AdamOptimizer(self.learning_rate).minimize(this_loss,var_list=self.gamma_vars)
+            this_op_gamma = tf.train.AdamOptimizer(self.learning_rate/2).minimize(this_loss,var_list=self.gamma_vars)
             if loss_ == 0:
                 loss_ = this_loss
             else:

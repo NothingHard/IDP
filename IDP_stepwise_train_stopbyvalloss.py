@@ -1,8 +1,4 @@
-
 # coding: utf-8
-
-# get_ipython().magic('env CUDA_DEVICE_ORDER=PCI_BUS_ID')
-# get_ipython().magic('env CUDA_VISIBLE_DEVICES=4')
 
 import argparse
 import os
@@ -14,6 +10,8 @@ from six.moves import cPickle
 from tensorflow.examples.tutorials.mnist import input_data
 from sklearn.metrics import accuracy_score
 from model import model
+
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
 profile   = sys.argv[1]
 alpha     = float(sys.argv[2])
@@ -65,7 +63,7 @@ with tf.Session() as sess:
         log = pd.DataFrame()
         
         while go_on:
-            save_dir = "~/IDP/output/"
+            save_dir = "~/IDP/output_stepwise/"
             epochs = 1
             batch_per_epoch = 200
             batch_size = 28

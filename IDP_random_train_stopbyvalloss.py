@@ -1,8 +1,6 @@
 
 # coding: utf-8
 
-# get_ipython().magic('env CUDA_DEVICE_ORDER=PCI_BUS_ID')
-# get_ipython().magic('env CUDA_VISIBLE_DEVICES=4')
 import argparse
 import os
 import sys
@@ -13,6 +11,8 @@ from six.moves import cPickle
 from tensorflow.examples.tutorials.mnist import input_data
 from sklearn.metrics import accuracy_score
 from model import model
+
+os.environ['CUDA_VISIBLE_DEVICES']=''
 
 profile   = sys.argv[1]
 alpha     = float(sys.argv[2])
