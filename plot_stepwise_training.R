@@ -10,10 +10,12 @@ setwd("~/IDP")
 ####
 ## iterative training
 ####
-this.dir <- "output/"
+this.dir <- "output/1018_RTESLA_ATP/"
 res_file <- grep("result",list.files(this.dir,full.names = T),value = T)
 log_file <- grep("log",list.files(this.dir,full.names = T),value=T)
-byATP=FALSE
+byATP= ifelse(grep("ATP",this.dir),TRUE,FALSE)
+Randomized = ifelse(grep("RTESLA",this.dir),TRUE,FALSE)
+profile_type <- c("harmonic","all-one")
 for(i in seq_along(res_file)){
     if(i==1){
         f <- fread(res_file[i])
@@ -40,9 +42,9 @@ f$profile <- paste0(tmp[,1],"= ",tmp[,2],")")
 f$IDP.train <- tmp[,2]
 rm(tmp)
 idx <- f$alternate==1
-if(byATP){
-    f[idx]$profile <- paste0("TESLA+ATP, ",f[idx]$profile)
-    f[!idx]$profile <- paste0("TESLA, ",f[!idx]$profile)
+if(Randomized){
+    f[idx]$profile <- paste0("Randomized TESLA+ATP, ",f[idx]$profile)
+    f[!idx]$profile <- paste0("Randomized TESLA, ",f[!idx]$profile)
 }else{
     f[idx]$profile <- paste0("TESLA+ATP, ",f[idx]$profile)
     f[!idx]$profile <- paste0("TESLA, ",f[!idx]$profile)
@@ -62,12 +64,14 @@ fg$profile <- gsub("at","at optimizing",fg$profile)
 fw$profile <- gsub("at","at optimizing",fw$profile)
 fg$profile <- gsub("\\(1 rounds","\\(1 round",fg$profile)
 fw$profile <- gsub("\\(1 rounds","\\(1 round",fw$profile)
-# fg = fw
+if(!byATP){
+    fg = fw
+}
+fg =f 
 types <- unique(do.call(what="rbind",strsplit(basename(res_file),split = "_"))[,2])
 types <- as.numeric(types)
 fg <- fg[order(alpha)]
 types <- unique(fg$alpha)
-profile_type <- c("all-one")
 
 for(prof in profile_type){
     for(type in types){
@@ -119,7 +123,6 @@ pf <- lapply(types,function(type){
             }
         }
     }
-
     return(res)
 })
 pf <- do.call("rbind",pf)
@@ -134,6 +137,18 @@ pf <- rbind(pf[,.(IDP,accu,profile)],ori)
 # pf$type = paste0("Loss at IDP=",pf$loss.IDP,"%, ",pf$profile)
 # mylevel = unique(pf$type)
 # pf$type = factor(pf$type,levels = mylevel)
+color7 <- c("#fd8d3c",
+            "#6baed6",
+            "#e6550d",
+            "#3182bd",
+            "#a63603",
+            "#08519c",
+            "#969696")
+color4_ATP <-  c("#fd8d3c","#e6550d","#a63603","#969696")
+color4 <- c("#fd8d3c","#e6550d","#a63603","#969696")
+
+if(length(unique(pf$profile))>5) mycolor = color7 else mycolor = color4_ATP
+
 ggplot(pf,aes(x=IDP,y=accu,colour=profile))+
     scale_y_continuous(breaks = seq(0,100,by=5))+
     scale_x_continuous(breaks = seq(10,100,by=10))+
@@ -142,39 +157,52 @@ ggplot(pf,aes(x=IDP,y=accu,colour=profile))+
     ggtitle(paste0("MLP (MNIST), comparison among the best ones"))+
     xlab("IDP (%)")+
     ylab("Classification accuracy (%)")+
-    # scale_color_manual(values=c("#bae4b3",
-    #     "#fdbe85",
-    #     "#bdd7e7",
-    #     "#74c476",
-    #     "#fd8d3c",
-    #     "#6baed6",
-    #     "#31a354",
-    #     "#e6550d",
-    #     "#3182bd",
-    #     "#006d2c",
-    #     "#a63603",
-    #     "#08519c",
-    #     "#969696"))+
-    scale_color_manual(values=c(#"#bae4b3",
-                                #"#fdbe85",
-                                #"#bdd7e7",
-                                #"#74c476",
-                                "#fd8d3c",
-                                "#6baed6",
-                                #"#31a354",
-                                "#e6550d",
-                                "#3182bd",
-                                #"#006d2c",
-                                "#a63603",
-                                "#08519c",
-                                "#969696"))+
+    scale_color_manual(values=mycolor)+
     theme_bw()+
     coord_cartesian(ylim = c(50, 100)) +
     theme(plot.title = element_text(hjust=0.5),
-          legend.position = c(0.5,0.5),
+          legend.position = c(0.5,0.3),
           legend.text=element_text(size=10),
           legend.title = element_text(size=15))
 ggsave(paste0(this.dir,"idp_all_best.png"),width = 10,height = 8,units="in")
+
+ppf <- pf[grepl("TESLA\\+ATP,", pf$profile)|grepl("original",pf$profile)]
+if(length(unique(ppf$profile))>5) mycolor = color7 else mycolor = color4_ATP
+ggplot(ppf,aes(x=IDP,y=accu,colour=profile))+
+    scale_y_continuous(breaks = seq(0,100,by=5))+
+    scale_x_continuous(breaks = seq(10,100,by=10))+
+    geom_line(size=1)+
+    geom_point(size=2)+
+    ggtitle(paste0("MLP (MNIST), comparison among the best ones"))+
+    xlab("IDP (%)")+
+    ylab("Classification accuracy (%)")+
+    scale_color_manual(values=mycolor)+
+    theme_bw()+
+    coord_cartesian(ylim = c(50, 100)) +
+    theme(plot.title = element_text(hjust=0.5),
+          legend.position = c(0.5,0.3),
+          legend.text=element_text(size=10),
+          legend.title = element_text(size=15))
+ggsave(paste0(this.dir,"TESLA_ATP_idp_all_best.png"),width = 10,height = 8,units="in")
+
+ppf <- pf[grepl("TESLA\\,", pf$profile)|grepl("original",pf$profile)]
+if(length(unique(ppf$profile))>5) mycolor = color7 else mycolor = color4
+ggplot(ppf,aes(x=IDP,y=accu,colour=profile))+
+    scale_y_continuous(breaks = seq(0,100,by=5))+
+    scale_x_continuous(breaks = seq(10,100,by=10))+
+    geom_line(size=1)+
+    geom_point(size=2)+
+    ggtitle(paste0("MLP (MNIST), comparison among the best ones"))+
+    xlab("IDP (%)")+
+    ylab("Classification accuracy (%)")+
+    scale_color_manual(values=mycolor)+
+    theme_bw()+
+    coord_cartesian(ylim = c(50, 100)) +
+    theme(plot.title = element_text(hjust=0.5),
+          legend.position = c(0.5,0.3),
+          legend.text=element_text(size=10),
+          legend.title = element_text(size=15))
+ggsave(paste0(this.dir,"TESLA_idp_all_best.png"),width = 10,height = 8,units="in")
 
 r2_file <- grep("r2",list.files("output/",full.names = T),value = T)
 r2_file <- grep("\\.csv",r2_file,value=T)
