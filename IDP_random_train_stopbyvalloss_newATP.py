@@ -12,7 +12,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 from sklearn.metrics import accuracy_score
 from model import model
 
-os.environ['CUDA_VISIBLE_DEVICES']=''
+os.environ['CUDA_VISIBLE_DEVICES']='1'
 
 profile   = sys.argv[1]
 alpha     = float(sys.argv[2])
@@ -100,7 +100,8 @@ with tf.Session() as sess:
             if intv == 1:
                 model_test = model(profile,params=params)
                 model_test.set_random_idp(sess=sess,probs=spec)
-                tidp = -1 # model_test.loss_counter
+                model_test.loss_counter = -1
+                tidp = model_test.loss_counter
                 print("=====< Start to optimize IDP = %d >=====" % (trained_idp[tidp]*100))
                 log1 = model_test.train(sess=sess,config=config,gamma_trainable=False,reuse=var_reuse,verbose=True)
                 this_loss = log1[early_stop][0]
