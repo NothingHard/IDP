@@ -10,7 +10,7 @@ setwd("~/IDP")
 ####
 ## iterative training
 ####
-this.dir <- "output/1018_RTESLA_ATP/"
+this.dir <- "output/1019_RTESLA_ATP_new/"
 res_file <- grep("result",list.files(this.dir,full.names = T),value = T)
 log_file <- grep("log",list.files(this.dir,full.names = T),value=T)
 byATP= ifelse(grep("ATP",this.dir),TRUE,FALSE)
@@ -204,7 +204,7 @@ ggplot(ppf,aes(x=IDP,y=accu,colour=profile))+
           legend.title = element_text(size=15))
 ggsave(paste0(this.dir,"TESLA_idp_all_best.png"),width = 10,height = 8,units="in")
 
-r2_file <- grep("r2",list.files("output/",full.names = T),value = T)
+r2_file <- grep("r2",list.files(this.dir,full.names = T),value = T)
 r2_file <- grep("\\.csv",r2_file,value=T)
 #### plot r2 according to original order ####
 for(prof in profile_type){
@@ -238,7 +238,7 @@ for(prof in profile_type){
                       legend.text=element_text(size=12),
                       legend.title = element_text(size=12))
             
-            ggsave(paste0(this.dir,"result_r2_",type,"_b",b,".png"),width = 10,height = 8,units="in")
+            ggsave(paste0(this.dir,"result_r2_",prof,"_",type,"_b",b,".png"),width = 10,height = 8,units="in")
         }
     }
 }

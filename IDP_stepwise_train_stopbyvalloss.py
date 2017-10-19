@@ -11,7 +11,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 from sklearn.metrics import accuracy_score
 from model import model
 
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 profile   = sys.argv[1]
 alpha     = float(sys.argv[2])
@@ -46,7 +46,9 @@ params['act_type'] = act_type
 
 print(params['idp'])
 print("============ ITERATIVE TRAINING ============")
-with tf.Session() as sess:
+gpu_config = tf.ConfigProto()
+gpu_config.gpu_options.per_process_gpu_memory_fraction = 0.4
+with tf.Session(config=gpu_config) as sess:
     with tf.variable_scope(profile+str(counter)) as scope:
         intv = 0
         tidp = 0
