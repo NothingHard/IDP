@@ -34,7 +34,7 @@ b3 = np.random.uniform(high=0.1,low=-0.1,size=(10)).astype('float32')
 params = {'W1':W1,'W2':W2,'W3':W3,'b1':b1,'b2':b2,'b3':b3}
 
 counter = 0
-trained_idp = np.arange(1.0,0.05,-0.3)
+trained_idp = np.arange(1.0,0.05,-0.1)
 # trained_idp = np.array([0.3,0.7])
 tested_idp = np.arange(0.1,1.05,0.05)
 
@@ -152,7 +152,7 @@ with tf.Session() as sess:
                     go_on = False
                     break
                 current_best_counter = 0
-                current_best_loss = 100
+                current_best_loss = 0
                 
                 # set trained idp
                 model_test.set_trained_idp(sess=sess, loss_counter = tidp)

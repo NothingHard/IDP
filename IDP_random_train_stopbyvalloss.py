@@ -39,19 +39,20 @@ tested_idp = np.arange(0.1,1.05,0.05)
 
 ### spec definition here
 # get bins from trained_idp
-if len(trained_idp)>1:
-    bins = [0] + ((trained_idp[0:-1]+trained_idp[1:])/2).tolist() + [1]
-else:
-    bins = [0] + trained_idp.tolist() + [1]
+# if len(trained_idp)>1:
+#     bins = [0] + ((trained_idp[0:-1]+trained_idp[1:])/2).tolist() + [1]
+# else:
+#     bins = [0] + trained_idp.tolist() + [1]
 
-spts = np.append(np.random.normal(loc=0.3,scale=0.1,size=100000),
-                    np.random.normal(loc=0.7,scale=0.1,size=100000))
-from scipy.stats.kde import gaussian_kde
-KDEpdf = gaussian_kde(spts)
-spec = np.histogram(spts,bins)[0]
-spec = spec / np.sum(spec)
-print("spec in use:")
-print(spec)
+# spts = np.append(np.random.normal(loc=0.3,scale=0.1,size=100000),
+#                     np.random.normal(loc=0.7,scale=0.1,size=100000))
+# from scipy.stats.kde import gaussian_kde
+# KDEpdf = gaussian_kde(spts)
+# spec = np.histogram(spts,bins)[0]
+# spec = spec / np.sum(spec)
+# print("spec in use:")
+# print(spec)
+spec = np.rep(1/len(trained_idp),len(trained_idp))
 
 ### training using gradually complete loss function
 params['idp'] = trained_idp
@@ -170,7 +171,7 @@ with tf.Session() as sess:
             # if converged and wait for 2*2 epochs, next idp point
             if (current_best_counter >= 2): #or (this_accu[tidp] >= np.min([0.9+tidp*0.03,0.999])):
                 current_best_counter = 0
-                current_best_loss = 100
+                current_best_loss = 0
                 model_test.set_random_idp(sess=sess,probs=spec)
                 tidp = model_test.loss_counter
                 print("=====< Start to optimize IDP = %d >=====" % (trained_idp[tidp]*100))
