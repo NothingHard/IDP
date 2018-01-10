@@ -21,13 +21,15 @@ class model():
         self.learning_rate = 0.001
         self.alpha = params['alpha']
         self.act_type = params['act_type']
+        self.hidden = params['hidden']
 
         if params==None:
-            self.W1 = tf.get_variable(initializer=tf.random_uniform([784, 100],-0.1,0.1),name="W1")
-            self.b1 = tf.get_variable(initializer=tf.zeros([100])+0.1,name="b1")
-            self.W2 = tf.get_variable(initializer=tf.random_uniform([100, 100],-0.1,0.1),name="W2")
-            self.b2 = tf.get_variable(initializer=tf.zeros([100])+0.1,name="b2")
-            self.W3 = tf.get_variable(initializer=tf.random_uniform([100, 10],-0.1,0.1),name="W3")
+            self.hidden = 100
+            self.W1 = tf.get_variable(initializer=tf.random_uniform([784, self.hidden],-0.1,0.1),name="W1")
+            self.b1 = tf.get_variable(initializer=tf.zeros([self.hidden])+0.1,name="b1")
+            self.W2 = tf.get_variable(initializer=tf.random_uniform([self.hidden, self.hidden],-0.1,0.1),name="W2")
+            self.b2 = tf.get_variable(initializer=tf.zeros([self.hidden])+0.1,name="b2")
+            self.W3 = tf.get_variable(initializer=tf.random_uniform([self.hidden, 10],-0.1,0.1),name="W3")
             self.b3 = tf.get_variable(initializer=tf.zeros([10])+0.1,name="b3")
             self.idp = np.arange(0.1,1.05,0.1)
         else:
@@ -46,20 +48,20 @@ class model():
 
         if profile == "linear":
             self.r1 = tf.get_variable(initializer=np.linspace(1,0,num=784,endpoint=False,dtype='float32'),name="r1",dtype='float32')
-            self.r2 = tf.get_variable(initializer=np.linspace(1,0,num=100,endpoint=False,dtype='float32'),name="r2",dtype='float32')
-            self.r3 = tf.get_variable(initializer=np.linspace(1,0,num=100,endpoint=False,dtype='float32') ,name="r3",dtype='float32')
+            self.r2 = tf.get_variable(initializer=np.linspace(1,0,num=self.hidden,endpoint=False,dtype='float32'),name="r2",dtype='float32')
+            self.r3 = tf.get_variable(initializer=np.linspace(1,0,num=self.hidden,endpoint=False,dtype='float32') ,name="r3",dtype='float32')
         elif profile == "all-one":
             self.r1 = tf.get_variable(initializer=np.ones(784,dtype='float32'),name="r1",dtype='float32')
-            self.r2 = tf.get_variable(initializer=np.ones(100,dtype='float32'),name="r2",dtype='float32')
-            self.r3 = tf.get_variable(initializer=np.ones(100,dtype='float32'),name="r3",dtype='float32')
+            self.r2 = tf.get_variable(initializer=np.ones(self.hidden,dtype='float32'),name="r2",dtype='float32')
+            self.r3 = tf.get_variable(initializer=np.ones(self.hidden,dtype='float32'),name="r3",dtype='float32')
         elif profile == "half-exp":
             self.r1 = tf.get_variable(initializer=half_exp(784,2),name="r1",dtype='float32')
-            self.r2 = tf.get_variable(initializer=half_exp(100,2),name="r2",dtype='float32')
-            self.r3 = tf.get_variable(initializer=half_exp(100,2),name="r3",dtype='float32')
+            self.r2 = tf.get_variable(initializer=half_exp(self.hidden,2),name="r2",dtype='float32')
+            self.r3 = tf.get_variable(initializer=half_exp(self.hidden,2),name="r3",dtype='float32')
         else:
             self.r1 = tf.get_variable(initializer=np.array(1.0/(np.arange(784)+1),dtype='float32'),name="r1",dtype='float32')
-            self.r2 = tf.get_variable(initializer=np.array(1.0/(np.arange(100)+1),dtype='float32'),name="r2",dtype='float32')
-            self.r3 = tf.get_variable(initializer=np.array(1.0/(np.arange(100)+1),dtype='float32') ,name="r3",dtype='float32')
+            self.r2 = tf.get_variable(initializer=np.array(1.0/(np.arange(self.hidden)+1),dtype='float32'),name="r2",dtype='float32')
+            self.r3 = tf.get_variable(initializer=np.array(1.0/(np.arange(self.hidden)+1),dtype='float32') ,name="r3",dtype='float32')
         
         ''' non-increasing weight clip '''
         def clip_in_order(last_output,current_input):
@@ -91,8 +93,8 @@ class model():
         y1 = my_activation(z1,self.act_type)
         for idp in self.idp:
             with tf.variable_scope(self.profile+str(idp),reuse=None):
-                n_ones = int(100 * idp)
-                n_zeros = 100 - n_ones
+                n_ones = int(self.hidden * idp)
+                n_zeros = self.hidden - n_ones
                 print("ones=%d, zeros=%d" % (n_ones,n_zeros))
                 t2 = tf.get_variable(initializer=np.append(np.ones(n_ones,dtype='float32'),np.zeros(n_zeros,dtype='float32')),name="t2",dtype='float32',trainable=False)
                 p2 = tf.multiply(self.r2,t2)
@@ -101,8 +103,13 @@ class model():
             logits = tf.add(tf.matmul(y2,self.W3),self.b3)
             cross_entropy = tf.nn.softmax_cross_entropy_with_logits(logits=logits,labels=self.y)
             this_loss = tf.reduce_mean(cross_entropy)
+
+            # define optimizer to train parameters excpet gamma
             this_op = tf.train.AdamOptimizer(self.learning_rate).minimize(this_loss,var_list=self.tvars_trainable)
+
+            # define optimizer to train gamma
             this_op_gamma = tf.train.AdamOptimizer(self.learning_rate/2).minimize(this_loss,var_list=self.gamma_vars)
+            
             if loss_ == 0:
                 loss_ = this_loss
             else:
@@ -222,12 +229,12 @@ class model():
             n_zeros = 784 - n_ones
             t1 = tf.get_variable(initializer=np.append(np.ones(n_ones,dtype='float32'),np.zeros(n_zeros,dtype='float32')),name="t1",dtype='float32')
 
-            n_ones = int(100 * idp)
-            n_zeros = 100 - n_ones
+            n_ones = int(self.hidden * idp)
+            n_zeros = self.hidden - n_ones
             t2 = tf.get_variable(initializer=np.append(np.ones(n_ones,dtype='float32'),np.zeros(n_zeros,dtype='float32')),name="t2",dtype='float32')
 
-            n_ones = int(100 * idp)
-            n_zeros = 100 - n_ones
+            n_ones = int(self.hidden * idp)
+            n_zeros = self.hidden - n_ones
             t3 = tf.get_variable(initializer=np.append(np.ones(n_ones,dtype='float32'),np.zeros(n_zeros,dtype='float32')),name="t3",dtype='float32')
 
             p1 = tf.multiply(self.r1,t1)
