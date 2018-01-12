@@ -15,7 +15,7 @@ cand = range(10,100+1,5)
 for hidden in cand:
     params = {}
     """ setting from config """
-    save_dir = "~/IDP/baseline/d"+str(hidden)
+    save_dir = "baseline/"+str(hidden)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
         
