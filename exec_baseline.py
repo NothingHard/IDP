@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -8,7 +9,7 @@ from tensorflow.examples.tutorials.mnist import input_data
 from sklearn.metrics import accuracy_score
 from baseline_model import baseline_model
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+os.environ['CUDA_VISIBLE_DEVICES'] = '5'
 
 cand = range(10,100+1,5)
 
@@ -18,7 +19,7 @@ for hidden in cand:
     save_dir = "baseline/"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
-        
+        print("create directory %s to save results" % save_dir)        
     """ save_dir as filename """
     save_dir = save_dir+str(hidden)
     epochs = 100
