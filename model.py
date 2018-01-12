@@ -82,7 +82,7 @@ class model():
             print('%s is not trainable.'% rm)
         self.tvars_trainable = tvars_trainable
         
-        ''' op_list '''
+        ''' operation list '''
         self.loss_list = []
         self.train_op_list = []
         self.train_op_gamma_list = []
@@ -110,10 +110,12 @@ class model():
             # define optimizer to train gamma
             this_op_gamma = tf.train.AdamOptimizer(self.learning_rate/2).minimize(this_loss,var_list=self.gamma_vars)
             
+            # loss aggregation
             if loss_ == 0:
                 loss_ = this_loss
             else:
                 loss_ = self.alpha*loss_ + (1.0-self.alpha)*this_loss
+
             self.loss_list.append(loss_)
             self.train_op_list.append(this_op)
             self.train_op_gamma_list.append(this_op_gamma)
