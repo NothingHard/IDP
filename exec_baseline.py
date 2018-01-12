@@ -15,10 +15,12 @@ cand = range(10,100+1,5)
 for hidden in cand:
     params = {}
     """ setting from config """
-    save_dir = "baseline/"+str(hidden)
+    save_dir = "baseline/"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
         
+    """ save_dir as filename """
+    save_dir = save_dir+str(hidden)
     epochs = 100
     batch_per_epoch = 200
     batch_size = 32
